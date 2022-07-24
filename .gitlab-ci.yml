@@ -1,4 +1,4 @@
-mage: docker:latest
+image: docker:latest
 services:
   - docker:dind
 
@@ -24,6 +24,7 @@ test:
   dependencies:
     - build
   script:
+    - "mkdir pages"
     - "go test -coverprofile pages/cover.out ./..."
     - "go tool cover -html=pages/cover.out -o pages/index.html"
     - "go tool cover -func pages/cover.out | grep total"
