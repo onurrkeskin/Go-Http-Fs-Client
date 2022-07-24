@@ -1,0 +1,16 @@
+make.exe --dry-run --always-make --keep-going --print-directory
+make: Entering directory 'd:/Projects/acronis-case-interview'
+docker build \
+	-f Docker/dockerfile.file-server \
+	-t file-server-amd64:1.0 \
+	--build-arg BUILD_REF=1.0 \
+	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+	.
+docker build \
+	-f Docker/dockerfile.file-client \
+	-t file-client-amd64:1.0 \
+	--build-arg BUILD_REF=1.0 \
+	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+	.
+make: Leaving directory 'd:/Projects/acronis-case-interview'
+ 

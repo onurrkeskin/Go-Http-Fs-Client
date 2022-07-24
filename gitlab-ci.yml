@@ -1,0 +1,45 @@
+mage: docker:latest
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay
+
+stages:
+  - compile
+  - test
+  - deploy
+
+build:
+  image: golang:latest
+  stage: compile
+  script: "go build -o bin/fs-client app/services/fs-client/main.go"
+  artifacts:
+    paths:
+      - bin/in-memory-db-case
+
+test:
+  image: golang:latest
+  stage: test
+  dependencies:
+    - build
+  script:
+    - "go test -coverprofile pages/cover.out ./..."
+    - "go tool cover -html=pages/cover.out -o pages/index.html"
+    - "go tool cover -func pages/cover.out | grep total"
+  artifacts:
+    paths:
+      - pages
+
+pages:
+  stage: deploy
+  dependencies:
+    - test
+  script:
+    - mv pages/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - master

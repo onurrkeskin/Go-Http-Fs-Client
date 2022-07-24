@@ -1,0 +1,35 @@
+FROM golang:1.18 as builder
+
+ENV CGO_ENABLED 0
+ARG BUILD_REF
+
+COPY . /service
+
+WORKDIR /service/app/services/fs-server
+RUN go build -ldflags "-X main.build=${BUILD_REF}"
+
+FROM alpine:3.16
+
+ARG BUILD_DATE
+ARG BUILD_REF
+RUN addgroup -g 1000 -S fs-user && adduser -u 1000 -h /service -G fs-user -S fs-user
+
+RUN mkdir -p /service/simple-dir/ \
+    && echo "---z---" > /service/simple-dir/file1 \
+    && echo "--z----" > /service/simple-dir/file2 \
+    && echo "-------" > /service/simple-dir/file3 \
+    && echo "==z====" > /service/simple-dir/file4
+
+COPY --from=builder --chown=fs-user:fs-user /service/app/services/fs-server/fs-server /service/fs-server
+WORKDIR /service
+USER fs-user
+
+EXPOSE 8081
+
+CMD ["./fs-server"]
+
+LABEL image.created="${BUILD_DATE}" \
+    image.title="fs-server" \
+    image.authors="Onur Keskin <onurkeskin@ku.edu.tr>" \
+    image.source="https://gitlab.com/onurkeskin/fs-server" \
+    image.revision="${BUILD_REF}"

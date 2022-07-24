@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  vscode:
+    privileged: true
+    build: .
+    # image: qmcgaw/godevcontainer:alpine
+    # image: qmcgaw/godevcontainer:debian
+    volumes:
+      - ../:/workspace
+      - ~/.ssh:/home/vscode/.ssh:ro
+      - ~/.ssh:/root/.ssh:ro
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    entrypoint: bash -c "while sleep 1000; do :; done"
+    networks:
+      - micro
+
+networks:
+  micro:
+    external: true 
